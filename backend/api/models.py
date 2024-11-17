@@ -40,11 +40,13 @@ class LoanFund(models.Model):
     expiry_date = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        # Calculate expiry date based on the loan fund duration
+        # Ensure createdAt is set before calculating expiry_date
+        if not self.createdAt:
+            self.createdAt = timezone.now()
         if self.loanFundType and self.loanFundType.duration:
-            # Add duration months to the createdAt date
             self.expiry_date = self.createdAt + relativedelta(months=self.loanFundType.duration)
         super().save(*args, **kwargs)
+
 
 class LoanType(models.Model):
     min = models.BigIntegerField()
@@ -68,9 +70,11 @@ class Loan(models.Model):
     expiry_date = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        # Calculate expiry date based on the loan fund duration
-        if self.loanFundType and self.loanFundType.duration:
-            # Add duration months to the createdAt date
-            self.expiry_date = self.createdAt + relativedelta(months=self.loanFundType.duration)
+        # Ensure createdAt is set before calculating expiry_date
+        if not self.createdAt:
+            self.createdAt = timezone.now()  # Import timezone from django.utils
+        if self.loanType and self.loanType.duration:
+            self.expiry_date = self.createdAt + relativedelta(months=self.loanType.duration)
         super().save(*args, **kwargs)
+
 

@@ -32,8 +32,11 @@ class LoanFundTypeSerializer(serializers.ModelSerializer):
 
 # Serializer for LoanFund model
 class LoanFundSerializer(serializers.ModelSerializer):
-    provider = CustomUserSerializer()  # Nested CustomUserSerializer
-    loanFundType = LoanFundTypeSerializer()  # Nested LoanFundTypeSerializer
+    class Meta:
+        model = LoanFund
+        fields = ['provider', 'amount', 'loanFundType']
+
+
 
     class Meta:
         model = LoanFund
@@ -51,10 +54,7 @@ class LoanTypeSerializer(serializers.ModelSerializer):
 
 # Serializer for Loan model
 class LoanSerializer(serializers.ModelSerializer):
-    customer = CustomUserSerializer()  # Nested CustomUserSerializer
-    loanType = LoanTypeSerializer()  # Nested LoanTypeSerializer
-
     class Meta:
         model = Loan
-        fields = ['id', 'customer', 'amount', 'loanType', 'status', 'createdAt', 'expiry_date']
-        read_only_fields = ['id', 'createdAt', 'expiry_date']
+        fields = ['customer', 'amount', 'loanType', 'status']
+
