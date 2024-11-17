@@ -5,8 +5,16 @@ from django.contrib.auth.models import Group, Permission
 
 # Serializer for CustomUser model
 class CustomUserSerializer(serializers.ModelSerializer):
-    groups = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all(), many=True)
-    user_permissions = serializers.PrimaryKeyRelatedField(queryset=Permission.objects.all(), many=True)
+    groups = serializers.PrimaryKeyRelatedField(
+        queryset=Group.objects.all(), 
+        many=True, 
+        required=False
+    )
+    user_permissions = serializers.PrimaryKeyRelatedField(
+        queryset=Permission.objects.all(), 
+        many=True, 
+        required=False
+    )
 
     class Meta:
         model = CustomUser
