@@ -1,7 +1,46 @@
 from rest_framework import serializers
 from .models import CustomUser, LoanFundType, LoanFund, LoanType, Loan
 from django.contrib.auth.models import Group, Permission
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.exceptions import AuthenticationFailed
+from django.contrib.auth import authenticate
 
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        
+        # Add custom claims (optional)
+        token['email'] = user.email
+        token['role'] = user.role  # Include user role if necessary
+        return token
+
+    def validate(self, attrs):
+        email = attrs.get("email", None)
+        password = attrs.get("password", None)
+
+        if email is None or password is None:
+            raise AuthenticationFailed("Email and password are required.")
+
+        # Authenticate the user by email
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            raise AuthenticationFailed("No active account found with the given credentials.")
+
+        if not user.check_password(password):
+            raise AuthenticationFailed("Invalid email or password.")
+
+        if not user.is_active:
+            raise AuthenticationFailed("User account is disabled.")
+
+        data = super().validate(attrs)
+        refresh = self.get_token(user)
+        data["refresh"] = str(refresh)
+        data["access"] = str(refresh.access_token)
+
+        return data
 
 # Serializer for CustomUser model
 class CustomUserSerializer(serializers.ModelSerializer):
